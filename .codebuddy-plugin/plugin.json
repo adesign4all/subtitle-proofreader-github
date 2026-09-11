@@ -1,0 +1,64 @@
+{
+  "name": "subtitle-proofreader",
+  "version": "1.0.0",
+  "description": "A professional subtitle proofreader for AI-generated subtitles of Q&A science interview videos (CapCut/JianYing). Three distinct workflows, clearly separated: (A) Video-only: directly generate an SRT from the speech (segment by complete spoken sentences (one sentence = one entry, no padding to 17); ONE line per subtitle entry, at most 17 chars per line (17 is a ceiling, not a target; only split a sentence into multiple entries when it exceeds 17 chars); keep 的-attributive phrases like 宇宙的起源 (modifier + 的 + head noun) unbroken within one entry; force-split different speakers' utterances in multi-person dialogues into separate entries even when replies are tight with <0.3s gaps or as short as one or two chars like 嗯/好/对/可以), then run the shared rule-based second-pass proofreading (second-pass may re-segment: merge over-fragmented entries and re-split poorly segmented long sentences, max 17 chars per entry; merging only within the same speaker's speech, entries mixing different speakers are force-split) and output the proofread SRT in the video's folder (intermediate products saved in the AI default storage path); (B) Video+SRT: first compare the provided SRT against the video's audio and fix text-accuracy issues directly (typos/spacing); missing lines (speech present in audio but absent from subtitles) are ADDED as new subtitle entries generated per the segmentation rules (one full sentence = one entry, max 17 chars, timestamps from that speech span, inserted at the right position), and extra lines (subtitle text with no corresponding speech) are DELETED, with subsequent entry numbers re-sequenced after each insertion/deletion (non-speech sounds like humming/music/ambient noise and cleaned filler words do not count as missing; uncertain cases that may be faint speech are flagged for confirmation, not deleted); timing offsets are flagged only, never auto-edited, then run the same rule-based second-pass proofreading (second-pass may re-segment: merge over-fragmented entries and re-split poorly segmented long sentences, max 17 chars per entry; merging only within the same speaker's speech, entries mixing different speakers are force-split; untouched entries keep original timestamps), and output in the SRT's folder (intermediate products saved in the AI default storage path); (C) SRT-only: directly run the same rule-based second-pass proofreading on the provided SRT (no audio comparison; second-pass may re-segment: merge over-fragmented entries and re-split poorly segmented long sentences, max 17 chars per entry; merging only within the same speaker's speech, entries mixing different speakers are force-split; untouched entries keep original timestamps) and output the proofread SRT in the SRT's folder. All three workflows share one ordered second-pass rule set: removes ALL filler words/spoken particles (incl. response 嗯/啊/哦, trailing 呢 in 所以呢/其实呢 or after nouns/phrases like 这次活动呢, meaningless 这个/那个; the 嘛/吗 inside fixed words like 干嘛/干吗 is part of the word and is KEPT) and ALL punctuation EXCEPT book-title marks, adds 《》 around works titles, spaces coordinate words and pauses (spaces are the ONLY separator, no line breaks during proofreading), standardizes number writing (Arabic numerals for precise values, Chinese numerals in idioms/approximations/proverbs like 减五岁, uppercase 壹贰叁 for anti-tampering amounts, thousands separators removed, letter categories like A类 kept uppercase), verifies proper nouns/technical terms before correcting (loading the program series proper-noun glossary at proofread start and applying confirmed terms directly; for a new series it builds the glossary after the first proofread and updates it each round from manual-proofreading feedback - recording confirmed correct forms and removing wrong ones), fixes typos (incl. dialect/accent handling during the second-pass proofreading: FIRST identify which regional dialect the speaker uses (phoneme patterns + dialect words + program region context, e.g. Sichuan/NE-Mandarin/Wu/Cantonese/Min/Hakka/Xiang/Central-Plains/Tibetan-area), THEN strengthen recognition with that dialect's sound-shift rules (per-phoneme batch checks — zh/ch/sh↔z/c/s, n/l, h/f, front/back nasal finals, erhua/rusheng; reuse confirmed dialect mishearing archives from the same series), and RE-VERIFY uncertain words afterwards (re-read candidates in that dialect, cross-check context, verify against on-screen text); whole-word substitutions restored by context like 没有灯→煤油灯; dialect words are KEPT, not translated into Mandarin, only restored when the AI wrote a homophone; accent edits flagged 【口音】; when the audio alone cannot determine a word (accent ambiguity, proper nouns like terms/names/medicine names, unclear audio), locate that timestamp and check the video frames for on-screen text (PPT slides, chart labels, program subtitle bars, opening/closing credits, product packaging text) as a deterministic source: if it clearly shows the correct spelling, use it (flagged 【画面核对】/screen-check, noted as verified against on-screen text); if there is no on-screen text or it conflicts with context (on-screen text itself may be misspelled), do not force it, fall back to re-listening/context/external verification and flag for confirmation; screen-check is a second evidence source besides audio, only for words the audio cannot determine; forced Traditional→Simplified conversion via OpenCC t2s after transcription (Whisper often outputs Traditional Chinese for zh — never re-transcribe, convert deterministically instead; Traditional input SRTs are converted to Simplified before proofreading, text lines only, timestamps/structure untouched; Simplified is the default output unless the user explicitly requests Traditional; flagged 【繁简】), ensures she/he/it and plural pronoun accuracy (gender tracking across narrated stories; homophone principle: ta/tamen are homophones so transcription default spelling is never trusted - every pronoun is judged independently from its referent; animals incl. anthropomorphized ones always take \"它\"; no redundant pronouns after collective subjects like 人类/人们; \"其它\" unified to \"其他\"; high-frequency inanimate referents like cells/immunity/nutrients/products/experiments/data/AI always take \"它\"; final whole-file consistency check ensures the same referent keeps one spelling throughout), fixes sentence flow. Outputs UTF-8 SRT re-importable into CapCut.",
+  "author": {
+    "name": "WorkBuddy",
+    "email": "support@workbuddy.local"
+  },
+  "agents": [
+    "./agents/subtitle-proofreader.md"
+  ],
+  "skills": [
+    "./skills/subtitle-proofreader"
+  ],
+  "expertType": "agent",
+  "agentName": "subtitle-proofreader",
+  "displayName": {
+    "en": "Subtitle Refiner",
+    "zh": "字幕精校师"
+  },
+  "profession": {
+    "en": "Video Subtitle Proofreader",
+    "zh": "视频字幕校对专家"
+  },
+  "displayDescription": {
+    "en": "Expert for AI-generated subtitles with three clearly separated workflows: video-only SRT generation (segment by complete spoken sentences, 17 chars per line max as ceiling not target, split only when a sentence exceeds 17), video+SRT audio comparison proofreading, and SRT-only direct second-pass proofreading, sharing one ordered rule-based second-pass; outputs the proofread SRT next to the source file, re-importable into CapCut.",
+    "zh": "剪映AI字幕：视频直出SRT、视频+字幕比对、仅字幕SRT精校三流程，共用二次校对，同目录可导入"
+  },
+  "avatar": "avatars/expert.png",
+  "categoryId": "06-ContentCreative",
+  "defaultInitPrompt": {
+    "zh": "我可以帮你校对AI生成的字幕SRT文件，修改字幕中的错误字词。",
+    "en": "I can help you proofread AI-generated SRT subtitle files and correct the wrong words in the subtitles."
+  },
+  "plugin": "subtitle-proofreader",
+  "tags": [
+    {
+      "en": "Subtitle Proofreading",
+      "zh": "字幕校对"
+    },
+    {
+      "en": "Filler & Punctuation Removal",
+      "zh": "口语词标点删除"
+    },
+    {
+      "en": "SRT Timestamp Preserved",
+      "zh": "保留时间码"
+    }
+  ],
+  "quickPrompts": [
+    {
+      "en": "I can help you proofread AI-generated SRT subtitle files and correct the wrong words in the subtitles.",
+      "zh": "我可以帮你校对AI生成的字幕SRT文件，修改字幕中的错误字词。"
+    },
+    {
+      "en": "This is my SRT subtitle file (no video). Please handle it with workflow 3: skip audio comparison, directly run the second-pass proofreading on the subtitles — remove all filler words and punctuation, add book-title marks, fix typos, unify numbers, add spacing, keep all timestamps and the original SRT structure — then generate the corrected SRT file in the same folder as the original for CapCut import.",
+      "zh": "这是我的 SRT 字幕文件（没有视频），请按工作方式三处理：跳过音频比对，直接对字幕执行二次校对——删除所有口语词和标点、为著作文章加书名号、修正错字、统一数字、空格隔写，保留所有时间码和原SRT结构，在原字幕SRT文件夹下生成校对完成的 SRT 文件。"
+    },
+    {
+      "en": "Here is a video file. Please generate an SRT subtitle directly from its speech: segment by complete spoken sentences (one sentence = one entry, no padding), one line per entry of at most 17 characters (17 is a ceiling not a target; only split a sentence into multiple entries when it exceeds 17 chars) (keep 的-attributive phrases like 宇宙的起源 unbroken within one entry), then run the rule-based second-pass proofreading, and finally save intermediate products in the AI default storage path and output the proofread SRT in the video's folder for CapCut import.",
+      "zh": "这是视频文件，请直接根据语音生成字幕SRT：按语音语序合理断句、完整一句话=一条字幕（不凑字），一行最多不超过17个字（17是上限不是目标），只有一句话超过17字才拆成多条字幕（“XX的XX”偏正短语整体放一条字幕、不拆开），生成后再按校对规则二次校对，最后中间产物存AI默认存储路径、在原视频文件夹下生成校对完成的SRT供剪映导入。"
+    }
+  ]
+}
